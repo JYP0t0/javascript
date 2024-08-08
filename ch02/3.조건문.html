@@ -65,10 +65,10 @@
 
     <h4>switch</h4>
     <script>
-        let score = prompt('점수 입력');
+        let score = prompt('점수 입력'); // prompt() 함수는 브라우저에서 사용자에게 입력을 요청하는 대화 상자를 표시
         document.write('입력점수: ' + score + ', type: ' + typeof score + '<br>');
 
-        let result = parseInt(score/10);
+        let result = parseInt(score/10); // parseInt() 함수는 문자열을 정수로 변환하는 함수
         document.write('result: ' + result + '<br>');
 
         switch(result) {
