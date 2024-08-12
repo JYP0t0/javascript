@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>2.Promise</title>
+    <!--
+        날짜: 2024/08/12
+        이름: 박준영
+        내용: 자바스크립트 프로미스 실습
+
+         - Promise는 비동기 작업의 성공 또는 실패와 그 결과값을 나타내는 객체이다.
+    -->
+</head>
+<body>
+    <h3>2.Promise</h3>
+    <script>
+        // promise 객체(제작코드)
+
+        const result = false;
+        
+        
+        const promise = new Promise((resolve, reject)=>{
+            if(result){
+            // resolve: 작업이 성공했을 때 호출하는 함수이다. 이 함수가 호출되면 Promise는 "이행(fulfilled)" 상태
+                resolve('promise success...');
+            }else{
+            // reject: 작업이 실패했을 때 호출하는 함수이다. 이 함수가 호출되면 Promise는 "거부(rejected)" 상태
+                reject('promise failed...');
+            }
+        });
+
+        // promise 객체 사용(소비코드)
+        promise
+            .then((message)=>{
+                // resolve() 호출 시 실행
+                console.log('then: message');
+            })
+            .catch((message)=>{
+                // reject() 호출 시 실행
+                console.log('catch: message');
+            })
+            .finally(()=>{
+                // Promise의 결과와 상관없이 항상 실행
+                console.log('finally...');
+            });
+
+            // promise를 이용한 비동기 처리(실행시간이 다른 함수를 호출한 순서대로 실행하는 처리방식)
+            function step1(){
+                return new Promise((resolve, reject)=>{
+                    setTimeout(()=>{
+                        resolve('step1...'); // resolve() 비동기 처리 작업 성공 함수
+                    }, 1000);
+                });
+            }
+
+            function step2(txt){
+
+                console.log(txt); // console.log(): 콘솔에 변수값을 출력하는 명령어 
+                
+                // 이전 단계에서 전달받은 step1... 출력 
+
+                return new Promise((resolve, reject)=>{
+                    setTimeout(()=>{
+                        resolve('step2...'); 
+                    }, 3000);
+                });
+            }
+
+            function step3(txt){
+
+                console.log(txt);
+
+                return new Promise((resolve, reject)=>{
+                    setTimeout(()=>{
+                        resolve('step3...'); 
+                    }, 2000);
+                });
+            }
+
+            step1()
+                .then((txt)=>step2(txt))
+                .then((txt)=>step3(txt))
+                .then((txt)=>{
+                    console.log(txt);
+                });
+
+
+            // async와 await를 이용한 비동기 처리
+            // await: Promise가 이행될 때까지 코드를 일시 중지시키고, Promise가 반환하는 값을 반환
+            async function steps(){ // await 호출 함수는 async 함수로 정의
+
+            const txt1 = await step1(); // promise를 return하는 함수는 await 호출
+            const txt2 = await step2(txt1); // await 키워드로 promise가 완료될 때까지 기다린다
+            const txt3 = await step3(txt2);
+
+            console.log(txt3);
+
+            }
+
+            steps(); // 정의된 steps 비동기 함수를 호출하여 순차적으로 진행
+
+            // promise를 이용한 커피 내리기
+            window.onload = function(){
+                
+                const inputText = document.getElementsByName('coffee')[0];
+                const btnOrder = document.getElementById('btnOrder');
+                const message = document.getElementById('message');
+
+                btnOrder.onclick = () => {
+                    const coffee = inputText.value;
+                    message.innerText = `${coffee} 제조 시작...`;
+
+                    makeCoffee(coffee);
+
+                }
+
+                function makeCoffee(coffee){
+                    boilWater(coffee)
+                        .then((coffee)=>brewCoffee(coffee))
+                        .then((coffee)=>pourCoffee(coffee))
+                        .then((coffee)=>doneCoffee(coffee));
+                }
+
+                async function makeCoffee2(coffee) {
+                    const result1 = await boilWater(coffee);
+                    const result2 = await brewCoffee(result1);
+                    const result3 = await pourCoffee(result2);
+                    const result4 = await doneCoffee(result3);
+                }
+
+                
+                function boilWater(coffee){
+                    message.innerText = `${coffee}를 위해 물을 끓입니다.`;
+                    
+                    return new Promise((resolve, reject)=>{
+                        setTimeout(()=>{
+                            resolve(coffee);
+                        }, 2000);
+                    });
+                
+                }
+
+                function brewCoffee(coffee){
+                    message.innerText = `${coffee}를 내립니다.`;
+                    
+                    return new Promise((resolve, reject)=>{
+                        setTimeout(()=>{
+                            resolve(coffee);
+                        }, 3000);
+                    });
+                }
+
+                function pourCoffee(coffee){
+                    message.innerText = `${coffee}를 컵에 따릅니다.`;
+                    
+                    return new Promise((resolve, reject)=>{
+                        setTimeout(()=>{
+                            resolve(coffee);
+                        }, 1000);
+                    });
+                }
+
+                function doneCoffee(coffee){
+                    message.innerText = `${coffee}가 완성되었습니다..`;
+                }
+
+            }// onload end
+
+            
+
+            
+
+
+    </script>
+
+    <input type="text" name="coffee">
+    <input type="button" id="btnOrder" value="주문하기">
+
+    <h4 id="message">준비 중...</h4>
+
+</body>
+</html>
