@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TodoList</title>
+    <style>
+        #wrapper {
+            width: 100%;
+            height: 100%;
+        }
+        h1 {
+            width: 97.5%;
+            height: 40px;
+            padding: 10px;
+            color: white;
+            background-color: black;
+        }
+        h3 {
+            left: 10px;
+        }
+        main {
+            width: 100%;
+            height: auto;
+        }
+
+        main > div {
+            width: 100%;
+            height: 50px;
+            display: flex; /* flexbox로 변경 */
+            box-sizing: border-box;
+        }
+
+        .work {
+            flex: 1; /* 남은 공간을 채우도록 설정 */
+            height: 100%;
+            padding: 5px; /* 여백 추가 */
+            box-sizing: border-box;
+        }
+
+        #add-todo {
+            width: auto; /* 버튼이 내용에 맞게 크기 조정 */
+            height: 100%;
+            padding: 0 10px; /* 좌우 여백 추가 */
+            margin-left: 5px; /* 입력 필드와 버튼 사이에 여백 추가 */
+            box-sizing: border-box;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        .todo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: -1px;
+            background-color: white;
+        }
+
+        .todo-item button {
+            background-color: white;
+            color: gray;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .todo-item button:hover {
+            background-color: #ebebeb;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>ToDo List</h1>
+        <h3>오늘 할일을 작성해 보세요.</h3>
+    </header>
+    <main>
+        <div>
+            <input class="work" type="text" id="new-todo" placeholder="할일을 입력하세요.">
+            <button id="add-todo">추가</button>  
+        </div>
+        <ul id="todo-list">
+            <!-- 할일 목록이 여기에 추가됩니다 -->
+        </ul>
+    </main>
+    <script>
+         // 로컬스토리지에서 할일 목록 불러오기
+        document.addEventListener('DOMContentLoaded', loadTodos);
+         // 추가 버튼 클릭 이벤트
+        document.getElementById('add-todo').addEventListener('click', addTodo);
+        // 엔터 키 입력 이벤트
+        document.getElementById('new-todo').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                addTodo();
+            }
+        });
+
+        // 할일 추가 함수
+        function addTodo() {
+            const todoInput = document.getElementById('new-todo');
+            const todoText = todoInput.value.trim();
+            // 할일 입력란이 비어있지 않은 경우에만 할일 추가
+            if (todoText !== '') {
+                addTodoItem(todoText); // 새로운 할일 항목 추가
+                saveTodoToLocalStorage(todoText); // 로컬스토리지에 할일 저장
+                todoInput.value = ''; // 입력란 초기화
+            }
+        }
+
+         // 새로운 할일 항목을 목록에 추가하는 함수
+        function addTodoItem(todoText) {
+            const todoList = document.getElementById('todo-list');
+
+            // 새로운 할일 항목을 li 요소로 생성
+            const todoItem = document.createElement('li');
+            todoItem.className = 'todo-item';
+            todoItem.innerHTML = `
+                <span>${todoText}</span>
+                <button onclick="deleteTodoItem(this)">X</button>
+            `;
+            
+            // 생성된 할일 항목을 목록에 추가
+            todoList.appendChild(todoItem);
+        }
+
+         // 로컬스토리지에 할일 저장 함수
+        function saveTodoToLocalStorage(todoText) {
+            let todos = JSON.parse(localStorage.getItem('todos')) || []; // 기존 할일 목록 불러오기
+            todos.push(todoText);   // 새로운 할일을 목록에 추가
+            localStorage.setItem('todos', JSON.stringify(todos));  // 업데이트된 할일 목록 저장
+        }
+
+        // 로컬스토리지에서 할일 불러오기 함수
+        function loadTodos() {
+            let todos = JSON.parse(localStorage.getItem('todos')) || []; // 저장된 할일 목록 불러오기
+            todos.forEach(todoText => addTodoItem(todoText));  // 각 할일을 목록에 추가
+        }
+
+        // 할일 삭제 함수
+        function deleteTodoItem(button) {
+            const todoItem = button.parentNode; // 삭제 버튼이 속한 li 요소를 가져오기
+            const todoText = todoItem.firstElementChild.textContent; // 삭제할 할일의 텍스트를 가져오기
+
+            // 로컬스토리지에서 해당 할일 삭제
+            let todos = JSON.parse(localStorage.getItem('todos')) || []; 
+            todos = todos.filter(todo => todo !== todoText);
+            localStorage.setItem('todos', JSON.stringify(todos));
+
+            todoItem.parentNode.removeChild(todoItem);
+        }
+    </script>
+</body>
+</html>
